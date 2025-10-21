@@ -1,0 +1,950 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Portaria Loterias - Aplicação</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;background:#f9fafb;margin:0;padding:0}
+    .container{max-width:1100px;margin:20px auto;padding:20px}
+    h1{color:#2563eb;text-align:center}
+    form{background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.05)}
+    label{display:block;margin-top:10px;font-weight:600}
+    input,textarea{width:100%;padding:8px;margin-top:6px;border:1px solid #ddd;border-radius:6px}
+    button{padding:10px 12px;border:none;border-radius:8px;background:#2563eb;color:#fff;cursor:pointer;margin-top:12px}
+    button:hover{background:#1d4ed8}
+    table{width:100%;border-collapse:collapse;margin-top:16px}
+    th,td{border:1px solid #ccc;padding:8px;text-align:left}
+    .hidden{display:none}
+    .logout{position:fixed;top:10px;right:10px;background:#ef4444;color:white}
+    .form-section {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .form-section h2 {
+      color: #2563eb;
+      font-size: 1.2em;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .form-section h3 {
+      color: #4b5563;
+      font-size: 1.1em;
+      margin: 15px 0;
+    }
+
+.acoes-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 25px;
+}
+
+.acoes-tabela th,
+.acoes-tabela td {
+  border: 1px solid #000;
+  padding: 4px;
+}
+
+.campo-tabela {
+  width: 100%;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  padding: 4px;
+  font-size: 0.95rem;
+}
+
+.campo-tabela:focus {
+  background: #f0f8ff;
+}
+
+
+.campo-tabela {
+  width: 100%;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  padding: 2px;
+  font-size: 0.95rem;
+}
+.recursos-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 25px;
+}
+
+.recursos-tabela th,
+.recursos-tabela td {
+  border: 1px solid #000;
+  padding: 6px;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.recursos-tabela input {
+  width: 100%;
+  border: none;
+  outline: none;
+  padding: 6px;
+  box-sizing: border-box;
+  font-size: 0.95rem;
+}
+
+.campo-total {
+  font-weight: bold;
+  background: #f0f0f0;
+  text-align: right;
+}
+
+.campo-percent, .campo-valor {
+  text-align: right;
+}
+
+.campo-tabela:focus {
+  background: #f0f8ff;
+}
+    button.logout {
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #4b5563;
+      font-weight: 500;
+    }
+
+    input[type="number"] {
+      text-align: right;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      resize: vertical;
+    }
+
+    /* Ajuste para campos menores */
+    input[name$="_uf"] {
+      width: 60px;
+    }
+
+    input[name$="_cep"] {
+      width: 120px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="conteudoPDF"></div>
+    <button class="logout" onclick="logout()">Sair</button>
+
+    <div id="formSection" class="hidden">
+      <h1>Plano de Aplicação - Recursos das Loterias</h1>
+    
+      <form id="formulario">
+        <!-- 1. Dados do ente executor -->
+      <section class="form-section">
+          <h2>2. Dados do ente executor</h2>
+          <div class="form-group">
+            <label>Nome:</label>
+            <input type="text" name="responsavel_nome" required />
+          </div>
+          <div class="form-group">
+            <label>CNPJ:</label>
+            <input type="text" name="responsavel_cpf" required />
+          </div>
+          <div class="form-group">
+            <label>Endereço:</label>
+            <input type="text" name="responsavel_endereco" required />
+          </div>
+          <div class="form-group">
+            <label>Cidade:</label>
+            <input type="text" name="responsavel_cidade" required />
+          </div>
+          <div class="form-group">
+            <label>UF:</label>
+            <input type="text" name="responsavel_uf" maxlength="2" required />
+          </div>
+          <div class="form-group">
+            <label>CEP:</label>
+            <input type="text" name="responsavel_cep" required />
+          </div>
+          <div class="form-group">
+            <label>DDD/Telefone:</label>
+            <input type="text" name="responsavel_telefone" required />
+          </div>
+          <div class="form-group">
+            <label>e-mail:</label>
+            <input type="email" name="responsavel_email" required />
+          </div>
+        </section>
+
+
+        <!-- 2. Dados do responsável -->
+        <section class="form-section">
+          <h2>2. Dados do responsável</h2>
+          <div class="form-group">
+            <label>Nome:</label>
+            <input type="text" name="responsavel_nome" required />
+          </div>
+          <div class="form-group">
+            <label>CPF:</label>
+            <input type="text" name="responsavel_cpf" required />
+          </div>
+          <div class="form-group">
+            <label>Cargo/função:</label>
+            <input type="text" name="responsavel_cargo" required />
+          </div>
+          <div class="form-group">
+            <label>Endereço:</label>
+            <input type="text" name="responsavel_endereco" required />
+          </div>
+          <div class="form-group">
+            <label>Cidade:</label>
+            <input type="text" name="responsavel_cidade" required />
+          </div>
+          <div class="form-group">
+            <label>UF:</label>
+            <input type="text" name="responsavel_uf" maxlength="2" required />
+          </div>
+          <div class="form-group">
+            <label>CEP:</label>
+            <input type="text" name="responsavel_cep" required />
+          </div>
+          <div class="form-group">
+            <label>DDD/Telefone:</label>
+            <input type="text" name="responsavel_telefone" required />
+          </div>
+          <div class="form-group">
+            <label>e-mail:</label>
+            <input type="email" name="responsavel_email" required />
+          </div>
+        </section>
+
+        <!-- 3. Dados Bancários -->
+        <section class="form-section">
+          <h2>3. Dados Bancários (conta específica)</h2>
+          <div class="form-group">
+            <label>Banco:</label>
+            <input type="text" name="banco" required />
+          </div>
+          <div class="form-group">
+            <label>Agência:</label>
+            <input type="text" name="agencia" required />
+          </div>
+          <div class="form-group">
+            <label>Conta Corrente:</label>
+            <input type="text" name="conta_corrente" required />
+          </div>
+        </section>
+
+        <!-- 4. Distribuição dos recursos por destinação -->
+<section class="form-section">
+  <h2>4. Distribuição dos recursos por destinação</h2>
+  <h3>4.1. Quadro de distribuição dos recursos</h3>
+
+  <table class="recursos-tabela" id="tabelaRecursos">
+    <thead>
+      <tr>
+        <th>Destinação</th>
+        <th style="width: 160px;">Valor (R$)</th>
+        <th style="width: 120px;">% Total</th>
+      </tr>
+    </thead>
+    <tbody id="tabelaBody">
+      <tr>
+        <td>Jogos Escolares de Esportes Olímpicos e Paralímpicos</td>
+        <td><input type="number" name="valor_jogos" class="campo-valor" step="0.01" oninput="atualizarTotais()" /></td>
+        <td><input type="text" class="campo-percent" readonly /></td>
+      </tr>
+      <tr>
+        <td>Prática de Educação Física, Esporte Escolar e Valorização dos Profissionais</td>
+        <td><input type="number" name="valor_educacao" class="campo-valor" step="0.01" oninput="atualizarTotais()" /></td>
+        <td><input type="text" class="campo-percent" readonly /></td>
+      </tr>
+      <tr>
+        <td>Construção, Acessibilidade e Manutenção de Instalações Esportivas</td>
+        <td><input type="number" name="valor_construcao" class="campo-valor" step="0.01" oninput="atualizarTotais()" /></td>
+        <td><input type="text" class="campo-percent" readonly /></td>
+      </tr>
+      <tr>
+        <td>Apoio ao Esporte para Pessoas com Deficiência</td>
+        <td><input type="number" name="valor_deficiencia" class="campo-valor" step="0.01" oninput="atualizarTotais()" /></td>
+        <td><input type="text" class="campo-percent" readonly /></td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <th>TOTAL</th>
+        <th><input type="text" id="valor_total" class="campo-total" readonly /></th>
+        <th><input type="text" id="percent_total" class="campo-total" readonly /></th>
+      </tr>
+    </tfoot>
+  </table>
+
+  <button type="button" onclick="adicionarLinha()">+ Adicionar Linha</button>
+</section>
+
+
+
+<!-- 5. Ações Previstas -->
+<section class="form-section">
+  <h2>5. Ações Previstas</h2>
+
+  <!-- 5.1 -->
+  <h3>5.1. Ações Relacionadas a Jogos Escolares de Esportes Olímpicos e Paralímpicos</h3>
+  <table class="acoes-tabela" id="tabela5_1">
+    <thead>
+      <tr>
+        <th style="width: 60px;">Nº</th>
+        <th>Descrição da ação</th>
+        <th style="width: 120px;">Início</th>
+        <th style="width: 120px;">Fim</th>
+        <th style="width: 140px;">Valor (R$)</th>
+        <th style="width: 60px;">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input type="number" class="campo-tabela" /></td>
+        <td><input type="text" class="campo-tabela" /></td>
+        <td><input type="date" class="campo-tabela" /></td>
+        <td><input type="date" class="campo-tabela" /></td>
+        <td><input type="number" class="campo-tabela" step="0.01" /></td>
+        <td><button type="button" onclick="removerLinha(this)">🗑️</button></td>
+      </tr>
+    </tbody>
+  </table>
+  <button type="button" onclick="adicionarLinhaAcao('tabela5_1')">+ Adicionar Linha</button>
+
+  <!-- 5.2 -->
+  <h3>5.2. Ações Relacionadas à Prática de Educação Física, ao Esporte Escolar e à Valorização dos Profissionais</h3>
+  <table class="acoes-tabela" id="tabela5_2">
+    <thead>
+      <tr>
+        <th style="width: 60px;">Nº</th>
+        <th>Descrição da ação</th>
+        <th style="width: 120px;">Início</th>
+        <th style="width: 120px;">Fim</th>
+        <th style="width: 140px;">Valor (R$)</th>
+        <th style="width: 60px;">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input type="number" class="campo-tabela" /></td>
+        <td><input type="text" class="campo-tabela" /></td>
+        <td><input type="date" class="campo-tabela" /></td>
+        <td><input type="date" class="campo-tabela" /></td>
+        <td><input type="number" class="campo-tabela" step="0.01" /></td>
+        <td><button type="button" onclick="removerLinha(this)">🗑️</button></td>
+      </tr>
+    </tbody>
+  </table>
+  <button type="button" onclick="adicionarLinhaAcao('tabela5_2')">+ Adicionar Linha</button>
+
+  <!-- 5.3 -->
+  <h3>5.3. Ações Relacionadas à Construção, Acessibilidade e Manutenção de Instalações Esportivas</h3>
+  <table class="acoes-tabela" id="tabela5_3">
+    <thead>
+      <tr>
+        <th style="width: 60px;">Nº</th>
+        <th>Descrição da ação</th>
+        <th style="width: 120px;">Início</th>
+        <th style="width: 120px;">Fim</th>
+        <th style="width: 140px;">Valor (R$)</th>
+        <th style="width: 60px;">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input type="number" class="campo-tabela" /></td>
+        <td><input type="text" class="campo-tabela" /></td>
+        <td><input type="date" class="campo-tabela" /></td>
+        <td><input type="date" class="campo-tabela" /></td>
+        <td><input type="number" class="campo-tabela" step="0.01" /></td>
+        <td><button type="button" onclick="removerLinha(this)">🗑️</button></td>
+      </tr>
+    </tbody>
+  </table>
+  <button type="button" onclick="adicionarLinhaAcao('tabela5_3')">+ Adicionar Linha</button>
+
+  <!-- 5.4 -->
+  <h3>5.4. Ações de Apoio ao Esporte para Pessoas com Deficiência</h3>
+  <table class="acoes-tabela" id="tabela5_4">
+    <thead>
+      <tr>
+        <th style="width: 60px;">Nº</th>
+        <th>Descrição da ação</th>
+        <th style="width: 120px;">Início</th>
+        <th style="width: 120px;">Fim</th>
+        <th style="width: 140px;">Valor (R$)</th>
+        <th style="width: 60px;">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input type="number" class="campo-tabela" /></td>
+        <td><input type="text" class="campo-tabela" /></td>
+        <td><input type="date" class="campo-tabela" /></td>
+        <td><input type="date" class="campo-tabela" /></td>
+        <td><input type="number" class="campo-tabela" step="0.01" /></td>
+        <td><button type="button" onclick="removerLinha(this)">🗑️</button></td>
+      </tr>
+    </tbody>
+  </table>
+  <button type="button" onclick="adicionarLinhaAcao('tabela5_4')">+ Adicionar Linha</button>
+</section>
+
+<!-- 6. Observações e Declaração -->
+<section class="form-section">
+  <h2>6. Observações e Declaração</h2>
+
+  <div class="form-group">
+    <label><strong>Observações:</strong></label>
+    <textarea name="observacoes" rows="3" placeholder="Digite aqui observações adicionais, se houver."></textarea>
+  </div>
+
+  <div class="form-group">
+    <label><strong>Declaração:</strong></label>
+    <p style="text-align: justify; line-height: 1.5; font-size: 0.95rem;">
+      Na qualidade de representante legal do(a) 
+      <input type="text" name="declaracao_nome" style="width: 250px; display: inline-block;" placeholder="Digite o nome do ente executor" />, 
+      declaro, para fins de prova junto ao Ministério do Esporte para os efeitos e sob as penas da lei, 
+      que as informações prestadas são verdadeiras e que os recursos serão utilizados em conformidade com a Portaria nº xxxx de dd de mmmmmmmm de 2025 do Ministério do Esporte. 
+      Declaro ainda que estou ciente que deverei manter acessível a documentação contábil referente à comprovação da execução das despesas, 
+      bem como quaisquer outros documentos relacionados à utilização dos recursos para eventuais fiscalizações dos órgãos de controle como, 
+      por exemplo, CGU, TCU e Ministério Público, bem como dos servidores do Ministério do Esporte no uso de suas atribuições regimentais.
+    </p>
+  </div>
+
+  <div class="form-group" style="margin-top: 20px;">
+    <label><em>Local e Data:</em></label><br>
+    <input type="text" name="local" placeholder="Cidade" style="width: 200px;" /> —
+    <input type="date" name="data_declaracao" />
+  </div>
+
+  <div class="form-group" style="margin-top: 30px;">
+    <label><strong>Assinatura do Dirigente ou Representante Legal do ente executor</strong></label>
+    <input type="text" name="assinatura" placeholder="Digite o nome do responsável" style="width: 100%;" />
+  </div>
+</section>
+
+       </section>
+
+<section class="form-section">
+    <h2>7. Anexo do Plano de Aplicação (Assinado)</h2>
+    <div class="form-group">
+        <label>Anexar o formulário PDF assinado:</label>
+        <input type="file" name="pdf_assinado" accept=".pdf" required /> 
+        <p style="font-size: 0.85em; color: #666; margin-top: 5px;">Por favor, anexe o arquivo PDF que foi baixado, preenchido e assinado.</p>
+    </div>
+</section>
+<section class="form-section">
+    
+    <div class="form-group">
+        <label>Anexar comprovante de função:</label>
+        <input type="file" name="pdf_comprovante" accept=".pdf" required /> 
+        <p style="font-size: 0.85em; color: #666; margin-top: 5px;">Por favor, anexe o arquivo PDF que comprove o cargo ao qual ocupa, preenchido e assinado.</p>
+    </div>
+</section>
+
+
+</form>
+       
+       
+
+       
+
+          
+          <!-- Campos similares aos de 5.1 -->
+
+        <button type="submit">Enviar Formulário</button>
+      </form>
+      <button type="button" onclick="baixarFormularioPDF()">📄 Baixar PDF</button>
+
+    </div>
+
+    <div id="adminSection" class="hidden">
+      <h1>Relatório de Respostas</h1>
+      <div>
+        <button onclick="gerarTabela()">Recarregar</button>
+        <button onclick="gerarCSV()">Exportar CSV</button>
+        <button onclick="gerarPDF()">Gerar PDF</button>
+      </div>
+      <div id="tabela"></div>
+    </div>
+  </div>
+<script>
+function logout(){sessionStorage.removeItem('role');window.location.href='index.html';}
+function getRespostas(){return JSON.parse(localStorage.getItem('respostas_portaria')||'[]');}
+function salvarResposta(dados) {
+  const all = getRespostas();
+  all.push({
+    id: Date.now(),
+    ts: new Date().toISOString(),
+    data: {
+      // Dados do executor
+      executor_nome: dados.executor_nome,
+      executor_cnpj: dados.executor_cnpj,
+      executor_endereco: dados.executor_endereco,
+      executor_cidade: dados.executor_cidade,
+      executor_uf: dados.executor_uf,
+      executor_cep: dados.executor_cep,
+      executor_telefone: dados.executor_telefone,
+      executor_email: dados.executor_email,
+      
+      // Dados do responsável
+      responsavel_nome: dados.responsavel_nome,
+      responsavel_cpf: dados.responsavel_cpf,
+      responsavel_cargo: dados.responsavel_cargo,
+      responsavel_endereco: dados.responsavel_endereco,
+      responsavel_cidade: dados.responsavel_cidade,
+      responsavel_uf: dados.responsavel_uf,
+      responsavel_cep: dados.responsavel_cep,
+      responsavel_telefone: dados.responsavel_telefone,
+      responsavel_email: dados.responsavel_email,
+      
+      // Dados bancários
+      banco: dados.banco,
+      agencia: dados.agencia,
+      conta: dados.conta,
+      
+      // Valores dos recursos
+      valor_jogos_escolares: dados.valor_jogos_escolares,
+      valor_educacao_fisica: dados.valor_educacao_fisica,
+      valor_construcao: dados.valor_construcao,
+      valor_apoio_deficiencia: dados.valor_apoio_deficiencia,
+      
+      // Ações
+      desc_acao_jogos: dados.desc_acao_jogos,
+      inicio_jogos: dados.inicio_jogos,
+      fim_jogos: dados.fim_jogos,
+      valor_acao_jogos: dados.valor_acao_jogos
+    }
+  });
+  localStorage.setItem('respostas_portaria', JSON.stringify(all));
+}
+function gerarTabela() {
+  const dados = getRespostas();
+  if (dados.length === 0) {
+    document.getElementById('tabela').innerHTML = '<p>Nenhuma resposta.</p>';
+    return;
+  }
+  
+  let html = `
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Executor</th>
+          <th>CNPJ</th>
+          <th>Responsável</th>
+          <th>Valor Total</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+  
+  dados.forEach(r => {
+    const d = r.data;
+    const valorTotal = parseFloat(d.valor_jogos_escolares || 0) +
+                      parseFloat(d.valor_educacao_fisica || 0) +
+                      parseFloat(d.valor_construcao || 0) +
+                      parseFloat(d.valor_apoio_deficiencia || 0);
+                      
+    html += `
+      <tr>
+        <td>${new Date(r.ts).toLocaleString()}</td>
+        <td>${d.executor_nome || ''}</td>
+        <td>${d.executor_cnpj || ''}</td>
+        <td>${d.responsavel_nome || ''}</td>
+        <td>R$ ${valorTotal.toFixed(2)}</td>
+        <td>
+          <button onclick="visualizarDetalhes(${r.id})">Detalhes</button>
+        </td>
+      </tr>
+    `;
+  });
+  
+  html += '</tbody></table>';
+  document.getElementById('tabela').innerHTML = html;
+}
+function gerarCSV() {
+  const dados = getRespostas();
+  if (dados.length === 0) return alert('Sem respostas');
+  
+  const header = [
+    'Data',
+    'Nome Executor',
+    'CNPJ',
+    'Endereço',
+    'Cidade',
+    'UF',
+    'CEP',
+    'Telefone',
+    'Email',
+    'Responsável',
+    'CPF',
+    'Cargo',
+    'Banco',
+    'Agência',
+    'Conta',
+    'Valor Jogos Escolares',
+    'Valor Educação Física',
+    'Valor Construção',
+    'Valor Apoio Deficiência',
+    'Descrição Ação',
+    'Início',
+    'Fim',
+    'Valor Ação'
+  ];
+  
+  const rows = dados.map(r => [
+    new Date(r.ts).toLocaleString(),
+    r.data.executor_nome,
+    r.data.executor_cnpj,
+    r.data.executor_endereco,
+    r.data.executor_cidade,
+    r.data.executor_uf,
+    r.data.executor_cep,
+    r.data.executor_telefone,
+    r.data.executor_email,
+    r.data.responsavel_nome,
+    r.data.responsavel_cpf,
+    r.data.responsavel_cargo,
+    r.data.banco,
+    r.data.agencia,
+    r.data.conta,
+    r.data.valor_jogos_escolares,
+    r.data.valor_educacao_fisica,
+    r.data.valor_construcao,
+    r.data.valor_apoio_deficiencia,
+    r.data.desc_acao_jogos,
+    r.data.inicio_jogos,
+    r.data.fim_jogos,
+    r.data.valor_acao_jogos
+  ]);
+  
+  const csv = [
+    header.join(','),
+    ...rows.map(x => x.map(y => `"${y || ''}"`).join(','))
+  ].join('\n');
+  
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'respostas_portaria.csv';
+  a.click();
+}
+async function gerarPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const dados = getRespostas();
+  
+  if (dados.length === 0) return alert('Sem respostas');
+  
+  let y = 10;
+  
+  dados.forEach((r, index) => {
+    const d = r.data;
+    
+    if (index > 0) {
+      doc.addPage();
+      y = 10;
+    }
+    
+    doc.setFontSize(16);
+    doc.text('Plano de Aplicação - Recursos das Loterias', 10, y);
+    y += 10;
+    
+    doc.setFontSize(12);
+    doc.text(`Data: ${new Date(r.ts).toLocaleString()}`, 10, y);
+    y += 10;
+    
+    // Dados do executor
+    doc.text('1. Dados do Ente Executor:', 10, y);
+    y += 6;
+    doc.text(`Nome: ${d.executor_nome}`, 15, y);
+    y += 6;
+    doc.text(`CNPJ: ${d.executor_cnpj}`, 15, y);
+    y += 6;
+    doc.text(`Endereço: ${d.executor_endereco}`, 15, y);
+    y += 6;
+    doc.text(`Cidade: ${d.executor_cidade}`, 15, y);
+    y += 6;
+    doc.text(`UF: ${d.executor_uf}`, 15, y);
+    y += 6;
+    doc.text(`CEP: ${d.executor_cep}`, 15, y);
+    y += 6;
+    doc.text(`Telefone: ${d.executor_telefone}`, 15, y);
+    y += 6;
+    doc.text(`Email: ${d.executor_email}`, 15, y);
+    y += 10;
+    
+    // Dados do responsável
+    doc.text('2. Dados do Responsável:', 10, y);
+    y += 6;
+    doc.text(`Nome: ${d.responsavel_nome}`, 15, y);
+    y += 6;
+    doc.text(`CPF: ${d.responsavel_cpf}`, 15, y);
+    y += 6;
+    doc.text(`Cargo: ${d.responsavel_cargo}`, 15, y);
+    y += 6;
+    doc.text(`Endereço: ${d.responsavel_endereco}`, 15, y);
+    y += 6;
+    doc.text(`Cidade: ${d.responsavel_cidade}`, 15, y);
+    y += 6;
+    doc.text(`UF: ${d.responsavel_uf}`, 15, y);
+    y += 6;
+    doc.text(`CEP: ${d.responsavel_cep}`, 15, y);
+    y += 6;
+    doc.text(`Telefone: ${d.responsavel_telefone}`, 15, y);
+    y += 6;
+    doc.text(`Email: ${d.responsavel_email}`, 15, y);
+    y += 10;
+    
+    // Dados bancários
+    doc.text('3. Dados Bancários:', 10, y);
+    y += 6;
+    doc.text(`Banco: ${d.banco}`, 15, y);
+    y += 6;
+    doc.text(`Agência: ${d.agencia}`, 15, y);
+    y += 6;
+    doc.text(`Conta Corrente: ${d.conta}`, 15, y);
+    y += 10;
+    
+    // Valores
+    doc.text('4. Distribuição dos Recursos:', 10, y);
+    y += 6;
+    doc.text(`Jogos Escolares: R$ ${d.valor_jogos_escolares}`, 15, y);
+    y += 6;
+    doc.text(`Educação Física: R$ ${d.valor_educacao_fisica}`, 15, y);
+    y += 6;
+    doc.text(`Construção: R$ ${d.valor_construcao}`, 15, y);
+    y += 6;
+    doc.text(`Apoio Deficiência: R$ ${d.valor_apoio_deficiencia}`, 15, y);
+  });
+  
+
+  doc.save('plano_aplicacao_portaria.pdf');
+}
+function visualizarDetalhes(id) {
+  const dados = getRespostas();
+  const registro = dados.find(r => r.id === id);
+  if (!registro) return;
+  
+  // Aqui você pode criar um modal ou uma nova página
+  // para mostrar todos os detalhes do registro
+  alert('Implemente a visualização detalhada aqui');
+}
+
+
+function atualizarTotais() {
+  const campos = document.querySelectorAll(".campo-valor");
+  let total = 0;
+
+  // Soma os valores digitados
+  campos.forEach(campo => {
+    total += parseFloat(campo.value) || 0;
+  });
+
+  // Atualiza os percentuais
+  campos.forEach(campo => {
+    const valor = parseFloat(campo.value) || 0;
+    const percent = total > 0 ? (valor / total) * 100 : 0;
+    const percentInput = campo.parentElement.nextElementSibling.querySelector(".campo-percent");
+    percentInput.value = percent.toFixed(1) + "%";
+  });
+
+  // Atualiza o total em R$
+  const campoTotal = document.getElementById("valor_total");
+  campoTotal.value = "R$ " + total.toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+
+  // Calcula a soma dos percentuais
+  const percents = document.querySelectorAll(".campo-percent");
+  let totalPercent = 0;
+  percents.forEach(p => {
+    totalPercent += parseFloat(p.value.replace("%", "")) || 0;
+  });
+
+  const totalPercentInput = document.getElementById("percent_total");
+  totalPercentInput.value = totalPercent.toFixed(1) + "%";
+
+  // Muda a cor conforme o valor
+  if (totalPercent > 100.1) {
+    totalPercentInput.style.backgroundColor = "#fecaca"; // vermelho
+  } else if (totalPercent < 99.9 && totalPercent > 0) {
+    totalPercentInput.style.backgroundColor = "#fef9c3"; // amarelo
+  } else if (totalPercent >= 99.9 && totalPercent <= 100.1) {
+    totalPercentInput.style.backgroundColor = "#bbf7d0"; // verde
+  } else {
+    totalPercentInput.style.backgroundColor = "#f0f0f0"; // padrão
+  }
+}
+
+function adicionarLinha() {
+  const tbody = document.getElementById("tabelaBody");
+  const novaLinha = document.createElement("tr");
+
+  novaLinha.innerHTML = `
+    <td><input type="text" placeholder="Nova destinação" style="width:100%; border:none; outline:none;" /></td>
+    <td><input type="number" class="campo-valor" step="0.01" oninput="atualizarTotais()" /></td>
+    <td><input type="text" class="campo-percent" readonly /></td>
+  `;
+
+  tbody.appendChild(novaLinha);
+}
+function adicionarLinhaAcao(idTabela) {
+  const tabela = document.getElementById(idTabela).querySelector("tbody");
+  const novaLinha = document.createElement("tr");
+
+  novaLinha.innerHTML = `
+    <td><input type="number" class="campo-tabela" /></td>
+    <td><input type="text" class="campo-tabela" /></td>
+    <td><input type="date" class="campo-tabela" /></td>
+    <td><input type="date" class="campo-tabela" /></td>
+    <td><input type="number" class="campo-tabela" step="0.01" /></td>
+    <td><button type="button" onclick="removerLinha(this)">🗑️</button></td>
+  `;
+
+  tabela.appendChild(novaLinha);
+}
+
+function removerLinha(botao) {
+  const linha = botao.closest("tr");
+  const tbody = linha.parentElement;
+  if (tbody.rows.length > 1) {
+    linha.remove();
+  } else {
+    alert("Não é possível remover todas as linhas!");
+  }
+}
+
+function baixarFormularioPDF() {
+    // 1. Oculta botões que não devem aparecer no PDF, garantindo que o formulário seja o único foco
+    document.querySelector('.logout').style.display = 'none';
+    const btnDownload = document.querySelector('#formSection button[onclick="baixarFormularioPDF()"]');
+    if (btnDownload) btnDownload.style.display = 'none';
+
+    // 2. SELECIONA O ELEMENTO PRINCIPAL QUE CONTÉM TUDO
+    // Use 'document.getElementById('conteudoPDF')' se você adicionou o ID,
+    // ou tente o corpo do formulário:
+    const element = document.getElementById('formulario'); // Tenta capturar apenas o formulário
+
+    // 3. Renderiza o formulário (e suas seções)
+    html2canvas(element, {
+        scale: 2, 
+        useCORS: true 
+    }).then(canvas => {
+        // ... (o restante do código de conversão para PDF é o mesmo) ...
+
+        const { jsPDF } = window.jspdf;
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = 210;
+        const pageHeight = 297; 
+        const imgHeight = canvas.height * imgWidth / canvas.width;
+        let heightLeft = imgHeight;
+        
+        const doc = new jsPDF('p', 'mm', 'a4');
+        let position = 0;
+
+        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        while (heightLeft >= 0) {
+            position = heightLeft - imgHeight;
+            doc.addPage();
+            doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+        }
+
+        // 4. Restaura os botões
+        document.querySelector('.logout').style.display = 'block';
+        if (btnDownload) btnDownload.style.display = 'block';
+
+        doc.save('formulario_plano_aplicacao.pdf');
+        
+        alert("PDF gerado. A assinatura pode ser feita manualmente ou digitalmente no arquivo baixado.");
+    }).catch(error => {
+        // Restaura em caso de erro
+        document.querySelector('.logout').style.display = 'block';
+        const btnDownload = document.querySelector('#formSection button[onclick="baixarFormularioPDF()"]');
+        if (btnDownload) btnDownload.style.display = 'block';
+        console.error("Erro ao gerar PDF:", error);
+        alert("Erro ao gerar PDF. Verifique se todos os campos estão visíveis.");
+    });
+}
+window.onload=()=>{
+    const role = sessionStorage.getItem('role');
+    
+    if (role === 'admin') {
+        document.getElementById('adminSection').classList.remove('hidden');
+        gerarTabela();
+    } else if (role === 'user') {
+        document.getElementById('formSection').classList.remove('hidden');
+
+        // >>>>>>> ESTE É O TRECHO CRÍTICO QUE  DEVO MODIFICAR <<<<<<<
+        document.getElementById('formulario').addEventListener('submit', e => {
+            e.preventDefault();
+            
+            // 1. Coleta TODOS os dados do formulário, incluindo o arquivo
+            const formData = new FormData(e.target);
+            
+            // 2. O URL do Power Automate que você deve obter ao criar o fluxo (EXEMPLO)
+            const WEBHOOK_URL_POWER_AUTOMATE = 'https://mdsgov.sharepoint.com/sites/LoteriaseQuotafixa/SitePages/CollabHome.aspx';
+
+            // 3. Envia os dados e o arquivo para o Power Automate
+            fetch(WEBHOOK_URL_POWER_AUTOMATE, {
+                method: 'POST',
+                body: formData 
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Plano de Aplicação enviado com sucesso para o servidor!');
+                    e.target.reset(); // Limpa o formulário após o sucesso
+                } else {
+                    alert('ERRO: Falha ao enviar o formulário. Status: ' + response.status);
+                }
+            })
+            .catch(error => {
+                console.error('Erro de conexão:', error);
+                alert('Erro de conexão. O formulário não pôde ser enviado.');
+            });
+        });
+
+    } else {
+        window.location.href = 'index.html';
+    }
+};
+
+
+</script>
+</body>
+</html>

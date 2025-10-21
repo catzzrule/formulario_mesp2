@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Portaria Loterias - Login</title>
+  <style>
+    body {
+      font-family: system-ui, Segoe UI, Roboto, Helvetica, Arial;
+      background: #f5f6fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .login-box {
+      background: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      width: 320px;
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+    input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+    button {
+      width: 100%;
+      padding: 20px;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 16px;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    h1 {
+      color: #2563eb;
+      margin-bottom: 24px;
+      font-size: 4.5rem;
+    }
+    .error-msg {
+      color: #ef4444;
+      font-size: 0.9rem;
+      margin-top: 8px;
+      min-height: 20px;
+    }
+    .form-group {
+      text-align: left;
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      color: #4b5563;
+      font-size: 0.9rem;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="login-box" id="loginBox">
+    <h1>Login</h1>
+    <form onsubmit="login(event)">
+      <div class="form-group">
+        <label for="email">E-mail</label>
+        <input 
+          type="email" 
+          id="email" 
+          placeholder="Seu e-mail" 
+          required 
+          autocomplete="email"
+        />
+      </div>
+      <div class="form-group">
+        <label for="password">Senha</label>
+        <input 
+          type="password" 
+          id="password" 
+          placeholder="Sua senha" 
+          required 
+          autocomplete="current-password"
+        />
+      </div>
+      <button type="submit">Entrar</button>
+      <p id="errorMsg" class="error-msg"></p>
+    </form>
+  </div>
+
+  <script>
+    const USERS = {
+      'admin@exemplo.com': { password: 'adm123', role: 'admin' },
+      'usuario@exemplo.com': { password: 'user123', role: 'user' }
+    };
+
+    function login(event) {
+      event.preventDefault();
+      
+      const email = document.getElementById('email').value.trim();
+      const pass = document.getElementById('password').value.trim();
+      const info = USERS[email];
+      
+      if (info && info.password === pass) {
+        sessionStorage.setItem('role', info.role);
+        window.location.href = 'app.html';
+      } else {
+        document.getElementById('errorMsg').innerText = 'E-mail ou senha incorretos';
+      }
+    }
+  </script>
+</body>
+</html>
