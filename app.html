@@ -481,8 +481,7 @@
           
           <!-- Campos similares aos de 5.1 -->
 
-        <button type="submit">Enviar Formulário</button>
-      </form>
+        <button type="submit" form="formulario" id="btnEnviar">Enviar Formulário</button>
       <button type="button" onclick="baixarFormularioPDF()">📄 Baixar PDF</button>
 
     </div>
@@ -911,32 +910,112 @@ window.onload=()=>{
         document.getElementById('formSection').classList.remove('hidden');
 
         // >>>>>>> ESTE É O TRECHO CRÍTICO QUE  DEVO MODIFICAR <<<<<<<
-        document.getElementById('formulario').addEventListener('submit', e => {
+        document.getElementById('formulario').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            // 1. Coleta TODOS os dados do formulário, incluindo o arquivo
-            const formData = new FormData(e.target);
-            
-            // 2. O URL do Power Automate que você deve obter ao criar o fluxo (EXEMPLO)
-            const WEBHOOK_URL_POWER_AUTOMATE = 'https://mdsgov.sharepoint.com/sites/LoteriaseQuotafixa/SitePages/CollabHome.aspx';
-
-            // 3. Envia os dados e o arquivo para o Power Automate
-            fetch(WEBHOOK_URL_POWER_AUTOMATE, {
-                method: 'POST',
-                body: formData 
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('Plano de Aplicação enviado com sucesso para o servidor!');
-                    e.target.reset(); // Limpa o formulário após o sucesso
+            const formEl = e.target;
+            const submitBtn = document.querySelector('button[type="submit"][form="formulario"]') || formEl.querySelector('button[type="submit"]');
+            const setLoading = (loading) => {
+              if (!submitBtn) return;
+              submitBtn.disabled = loading;
+              submitBtn.textContent = loading ? 'Enviando...' : 'Enviar Formulário';
+            };
+            setLoading(true);
+            try {
+              const formData = new FormData(formEl);
+              // Converte campos simples do formulário em objeto
+              const fields = {};
+              for (const [key, value] of formData.entries()) {
+                if (value instanceof File) continue;
+                if (fields[key] === undefined) {
+                  fields[key] = value;
+                } else if (Array.isArray(fields[key])) {
+                  fields[key].push(value);
                 } else {
-                    alert('ERRO: Falha ao enviar o formulário. Status: ' + response.status);
+                  fields[key] = [fields[key], value];
                 }
-            })
-            .catch(error => {
-                console.error('Erro de conexão:', error);
-                alert('Erro de conexão. O formulário não pôde ser enviado.');
-            });
+              }
+              // Lê anexos em base64
+              const filesToRead = [];
+              for (const [key, value] of formData.entries()) {
+                if (value instanceof File && value.size > 0) {
+                  filesToRead.push({ key, file: value });
+                }
+              }
+              const fileToBase64 = (file) => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                  const res = reader.result;
+                  const base64 = typeof res === 'string' ? res.split(',')[1] : '';
+                  resolve(base64);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+              });
+              const anexos = [];
+              for (const { key, file } of filesToRead) {
+                const contentBytes = await fileToBase64(file);
+                anexos.push({
+                  field: key,
+                  name: file.name,
+                  contentType: file.type || 'application/octet-stream',
+                  contentBytes
+                });
+              }
+              // Extrai tabelas dinâmicas
+              const extrairRecursosTabela = () => {
+                const rows = Array.from(document.querySelectorAll('#tabelaRecursos tbody tr'));
+                return rows.map((row) => {
+                  const destCell = row.cells[0];
+                  const inputDest = destCell ? destCell.querySelector('input') : null;
+                  const destinacao = inputDest ? inputDest.value : (destCell ? destCell.textContent.trim() : '');
+                  const valor = row.cells[1]?.querySelector('input')?.value || '';
+                  const porcento = row.cells[2]?.querySelector('input')?.value || '';
+                  return { destinacao, valor, porcento };
+                });
+              };
+              const extrairAcoesTabela = (id) => {
+                const rows = Array.from(document.querySelectorAll(`#${id} tbody tr`));
+                return rows.map((row) => {
+                  const inputs = Array.from(row.querySelectorAll('input'));
+                  const [numero, descricao, inicio, fim, valor] = inputs.map((i) => i.value);
+                  return { numero, descricao, inicio, fim, valor };
+                });
+              };
+              const payload = {
+                metadata: {
+                  submittedAt: new Date().toISOString(),
+                  userAgent: navigator.userAgent,
+                  pageUrl: location.href
+                },
+                fields,
+                recursosTabela: extrairRecursosTabela(),
+                acoes: {
+                  jogosEscolares: extrairAcoesTabela('tabela5_1'),
+                  educacaoFisica: extrairAcoesTabela('tabela5_2'),
+                  construcaoManutencao: extrairAcoesTabela('tabela5_3'),
+                  apoioPcD: extrairAcoesTabela('tabela5_4')
+                },
+                anexos
+              };
+              // Substitua pela URL real do gatilho "Quando uma solicitação HTTP for recebida" do Power Automate
+              const WEBHOOK_URL_POWER_AUTOMATE = '<<INSIRA_AQUI_A_URL_DO_FLUXO_HTTP_DO_POWER_AUTOMATE>>';
+              const resp = await fetch(WEBHOOK_URL_POWER_AUTOMATE, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+              });
+              if (!resp.ok) {
+                const txt = await resp.text().catch(() => '');
+                throw new Error(`Falha no envio. Status ${resp.status}. ${txt}`);
+              }
+              alert('Plano de Aplicação enviado com sucesso!');
+              formEl.reset();
+            } catch (err) {
+              console.error(err);
+              alert('Erro ao enviar. Verifique sua conexão e tente novamente.');
+            } finally {
+              setLoading(false);
+            }
         });
 
     } else {
